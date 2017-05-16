@@ -37,11 +37,12 @@ int main(void){
 	char buf[1024];
   	char * argv[] = {"ls", "-al", NULL};
 	int pipe_fd = readFromC("/bin/ls", argv);
+
 	int len = read(pipe_fd, buf, sizeof(buf));
 	FILE * fp;
 	fp = fopen("test.txt", "w");
-	fprintf(fp, "message is : %s", buf);
-	close(pipe_fd);
+	fwrite(buf, 1, len, fp);
 
+	close(pipe_fd);
 	return 0;
 }
