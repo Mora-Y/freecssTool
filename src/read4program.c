@@ -9,6 +9,10 @@ void sys_err(const char * str){
 	exit(1);
 }
 
+int readFromC(const char * cmd, const char ** argv){
+	return 0;
+}
+
 int main(void){
 	pid_t pid;
 	char buf[1024];
