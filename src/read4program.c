@@ -9,39 +9,39 @@ void sys_err(const char * str){
 	exit(1);
 }
 
-int readFromC(const char * cmd, const char ** argv){
-	return 0;
-}
+#define PIPE_ERROE -1
+#define FORK_ERROR -2
 
-int main(void){
+int readFromC(const char * cmd, char * const argv[]){
 	pid_t pid;
-	char buf[1024];
 	int fd[2];
-	char *p = "test for pipe\n";
 	if (pipe(fd) == -1)
-		sys_err("pipe");
+		return PIPE_ERROE;
 
 	pid = fork();
 	if (pid < 0) {
-		sys_err("fork err");
+		return FORK_ERROR;
 	} else if (pid != 0) {
-		FILE * fp;
-		fp = fopen("test.txt", "w");
 		wait(NULL);
 		close(fd[1]);
-		int len = read(fd[0], buf, sizeof(buf));
-		//write(STDOUT_FILENO, buf, len);
-		fprintf(fp, "message is : %s", buf);
-		close(fd[0]);
 	} else {
 		close(fd[0]);
-		write(fd[1], p, strlen(p));
 		dup2(fd[1], 1);
-		printf("hahaha\n");
-  		char * argv[] = {"ls", "-al", NULL};
-		execv("/bin/ls", argv);
+		execv(cmd, argv);
 		close(fd[1]);
 	}
+	return fd[0];
+}
+
+int main(void){
+	char buf[1024];
+  	char * argv[] = {"ls", "-al", NULL};
+	int pipe_fd = readFromC("/bin/ls", argv);
+	int len = read(pipe_fd, buf, sizeof(buf));
+	FILE * fp;
+	fp = fopen("test.txt", "w");
+	fprintf(fp, "message is : %s", buf);
+	close(pipe_fd);
 
 	return 0;
 }
